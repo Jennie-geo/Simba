@@ -4,7 +4,7 @@ const Schema = Mongoose.Schema;
 
 const transactionSchema = new Schema(
   {
-    user: {
+    userId: {
       type: Mongoose.SchemaTypes.ObjectId,
       ref: 'user',
     },
