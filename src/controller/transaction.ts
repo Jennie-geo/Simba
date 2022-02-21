@@ -112,14 +112,11 @@ export async function getSingleTransactionByUser(
   res: Response,
 ): Promise<any> {
   try {
-    const user = await User.findById({
-      _id: req.params.id,
-    });
-    if (!user) return res.send({ msg: 'No user transaction exists' });
-    const transaction = await Transaction.find();
-    if (!transaction) return res.send({ msg: 'No transaction exist' });
-    if (transaction.Details?.userId === user._id)
-      res.send({ Details: transaction });
+    const transaction = await Transaction.find({ userId: req.body.userId });
+    if (!transaction) {
+      return res.send({ msg: 'No user with the id exists' });
+    }
+    res.send({ msg: transaction });
   } catch (err: any) {
     console.log(err);
     res.send({ Error: err.message });

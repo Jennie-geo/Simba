@@ -38,6 +38,7 @@ export async function createUser(
 }
 export async function loginUser(req: Request, res: Response): Promise<any> {
   try {
+    console.log('\n\n', new Date().toLocaleDateString(), req.body);
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
       res.send({ msg: 'No user with this email exist' });

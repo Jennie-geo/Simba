@@ -11,6 +11,6 @@ const router = Router();
 
 router.post('/api/v1/createTransaction/:id', isLoggedIn, createTransaction);
 router.post('/api/v1/getRate', authlogin, getRateController);
-router.get('/api/v1/getTransaction/:id', authlogin, getSingleTransactionByUser);
-router.get('/api/v1/allTransactions', authlogin, getAllTransactions);
+router.get('/api/v1/getTransaction', getSingleTransactionByUser);
+router.get('/api/v1/allTransactions', getAllTransactions);
 export default router;

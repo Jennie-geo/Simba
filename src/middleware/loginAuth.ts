@@ -60,7 +60,7 @@ export function authlogin(req: Users, res: Response, next: NextFunction): any {
       return res.status(403).send({ Error: 'Access denied' });
     } else {
       //there is a valid token
-      const { userId } = decoded!;
+      const userId = decoded!;
       const user = await User.findById(userId);
       if (!user) {
         return res.send({ login: `No User exists with this ${userId}` });

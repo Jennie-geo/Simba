@@ -1,6 +1,7 @@
 import createError from 'http-errors';
 import express from 'express';
 import path from 'path';
+import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import createAccount from './routes/account';
@@ -19,6 +20,18 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
+const corsOptions = {
+  origin: process.env.FRONTEND_ROOT_URL,
+  // origins: process.env.UI_ROOT_URL,
+  credentials: true,
+  optionSuccessStatus: 200,
+};
+
+app.use(cors());
+
+// app.use((req, res, next) => {
+//   res.header('Access-Control-Allow-Origin', '*');
+// });
 // app.use("/", indexRouter);
 app.use('/', usersRouter);
 app.use('/', createAccount);

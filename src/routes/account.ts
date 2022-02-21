@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { createAccount } from '../controller/account';
+// import { createAccount } from '../controller/account';
 const router = Router();
 
 /* GET users listing. */
-router.post('/userAccount/:id', createAccount);
+// router.post('/userAccount/:id', createAccount);
 
 export default router;
