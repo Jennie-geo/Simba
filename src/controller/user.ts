@@ -3,6 +3,7 @@ import User from '../model/user';
 import bcrypt from 'bcrypt';
 import { userSchema } from '../middleware/validation';
 import jwt from 'jsonwebtoken';
+import { CustomRequest } from '../middleware/loginAuth';
 
 export async function createUser(
   req: express.Request,
@@ -11,14 +12,17 @@ export async function createUser(
   console.log('function dey work');
   try {
     const accountNum = Math.floor(Math.random() * 10000000000 + 1);
+    console.log(req.body);
     const validation = userSchema.validate(req.body);
     if (validation.error) {
       console.log(validation.error);
-      res.send({ 'Validation error': validation.error.message });
+      return res.send({ 'Validation error': validation.error.message });
     }
     const user = await User.findOne({ email: req.body.email });
     if (user) {
-      return res.send({ success: true, message: 'User already exists' });
+      return res
+        .status(400)
+        .json({ success: true, message: 'User already exists' });
     } else {
       const userPasswd = await bcrypt.hash(req.body.password, 10);
       const newUser = new User({
@@ -29,11 +33,11 @@ export async function createUser(
         account_Number: accountNum,
       });
       await newUser.save();
-      res.send({ success: true, data: newUser });
+      res.status(200).json({ success: true, data: newUser });
     }
   } catch (e) {
     console.log(e);
-    res.send({ success: false, message: (e as Error).message });
+    res.status(500).send({ success: false, message: (e as Error).message });
   }
 }
 export async function loginUser(req: Request, res: Response): Promise<any> {
@@ -41,14 +45,16 @@ export async function loginUser(req: Request, res: Response): Promise<any> {
     console.log('\n\n', new Date().toLocaleDateString(), req.body);
     const user = await User.findOne({ email: req.body.email });
     if (!user) {
-      res.send({ msg: 'No user with this email exist' });
+      res.status(404).json({ msg: 'No user with this email exist' });
     } else {
       const matchPassword = await bcrypt.compare(
         req.body.password,
         user.password,
       );
       if (!matchPassword) {
-        res.send({ msg: "Authentication failed, Password doesn't match" });
+        res
+          .status(400)
+          .json({ msg: "Authentication failed, Password doesn't match" });
       } else {
         const token = jwt.sign({ userId: user.id }, 'SECRET', {
           expiresIn: '1h',
@@ -61,7 +67,7 @@ export async function loginUser(req: Request, res: Response): Promise<any> {
       }
     }
   } catch (err) {
-    res.send('error');
+    res.status(500).json({ error: 'Error occurred please try again later' });
   }
 }
 export async function getAllUser(req: Request, res: Response): Promise<any> {
@@ -75,10 +81,13 @@ export async function getAllUser(req: Request, res: Response): Promise<any> {
     res.send(err);
   }
 }
-export async function getSingleUser(req: Request, res: Response): Promise<any> {
+export async function getSingleUser(
+  req: CustomRequest,
+  res: Response,
+): Promise<any> {
   try {
     const user = await User.findOne({
-      account_Number: req.body.account_Number,
+      _id: req.user,
     });
     if (!user)
       return res.send({

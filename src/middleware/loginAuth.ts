@@ -4,7 +4,7 @@ import User from '../model/user';
 
 //import {config} from '../config'
 
-interface Users extends Request {
+export interface CustomRequest extends Request {
   user?: string;
   name?: string;
   email?: string;
@@ -45,8 +45,12 @@ export function isLoggedIn(
     }
   });
 }
-//users login authorization
-export function authlogin(req: Users, res: Response, next: NextFunction): any {
+//CustomRequest login authorization
+export function authlogin(
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction,
+): any {
   const token = req.headers['authorization'];
   if (!token) {
     return res.status(403).send('You have to login to continue');
@@ -60,11 +64,17 @@ export function authlogin(req: Users, res: Response, next: NextFunction): any {
       return res.status(403).send({ Error: 'Access denied' });
     } else {
       //there is a valid token
-      const userId = decoded!;
+      const { userId } = decoded as {
+        userId: string;
+        iat: number;
+        exp: number;
+      };
+      console.log('>>> userId', userId);
       const user = await User.findById(userId);
       if (!user) {
         return res.send({ login: `No User exists with this ${userId}` });
       }
+      req.user = userId as string;
       next();
     }
   });

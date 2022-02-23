@@ -7,9 +7,10 @@ import jwt from 'jsonwebtoken';
 import { GetRateReturnType } from '../interface/apiInterface';
 import { exchangeRates, currencies } from 'exchange-rates-api';
 import { getRate, getRateControllers } from '../lib/rateApi';
+import { CustomRequest } from '../middleware/loginAuth';
 
 export async function createTransaction(
-  req: Request,
+  req: CustomRequest,
   res: Response,
 ): Promise<any> {
   try {
@@ -25,9 +26,8 @@ export async function createTransaction(
       amount,
     } = req.body;
 
-    const user = await User.findById({ _id: req.params.id });
-    if (!user) return res.send({ msg: 'No user found' });
-
+    const user = await User.findById(req.user);
+    if (!user) return res.status(404).json({ msg: 'No user found' });
     const rateApiResponse = await getRateControllers(
       source_currency,
       target_currency,
@@ -42,13 +42,13 @@ export async function createTransaction(
     const receiver = await User.findOne({ account_Number: receiverAccount_nr });
 
     if (!sender) {
-      return res.send({ msg: 'No sender account added' });
+      return res.status(400).json({ msg: 'No sender account added' });
     }
     if (!receiver) {
-      return res.send({ msg: 'No receiver account exists' });
+      return res.status(400).json({ msg: 'No receiver account exists' });
     }
     if (receiver.account_Number === senderAccount_nr) {
-      return res.send({
+      return res.status(400).json({
         msg: 'Please, add a different receiver account number',
       });
     }
@@ -66,12 +66,9 @@ export async function createTransaction(
         amount,
         target_currency,
         source_currency,
-        userId: user._id,
+        // userId: user,
         exchange_rate: conversion_rate,
       };
-      console.log('Transaction', Transaction);
-      console.log('newsender', newSenderBalUSD);
-      console.log('newReceiver', newReceiverBalNGN);
       sender.balance[source_currency] = newSenderBalUSD;
       receiver.balance[target_currency] = newReceiverBalNGN;
 
@@ -79,16 +76,14 @@ export async function createTransaction(
       await receiver.save();
 
       const newTransaction = new Transaction(updateAccount);
-      console.log('new Transanctio', newTransaction);
-      // Transaction.status = 'successful'
       await newTransaction.save();
 
-      res.send({ success: true, details: newTransaction });
+      res.status(200).json({ success: true, details: newTransaction });
     } else {
-      res.send({ success: false, msg: 'Insufficient amount' });
+      res.status(400).json({ success: false, msg: 'Insufficient amount' });
     }
   } catch (err: any) {
-    res.send(err.message);
+    res.status(500).json(err.message);
   }
 }
 
@@ -108,18 +103,17 @@ export async function getAllTransactions(
 }
 
 export async function getSingleTransactionByUser(
-  req: Request,
+  req: CustomRequest,
   res: Response,
 ): Promise<any> {
   try {
-    const transaction = await Transaction.find({ userId: req.body.userId });
+    const transaction = await Transaction.find({ userId: req.user });
     if (!transaction) {
-      return res.send({ msg: 'No user with the id exists' });
+      return res.status(404).json({ msg: 'No user with the id exists' });
     }
-    res.send({ msg: transaction });
+    res.status(200).json({ msg: transaction });
   } catch (err: any) {
-    console.log(err);
-    res.send({ Error: err.message });
+    res.status(500).json({ Error: err.message });
   }
 }
 
