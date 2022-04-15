@@ -12,7 +12,7 @@ import { CustomRequest } from '../middleware/loginAuth';
 export async function createTransaction(
   req: CustomRequest,
   res: Response,
-): Promise<any> {
+): Promise<Response> {
   try {
     const validation = transactionSchema.validate(req.body);
     if (validation.error) {
@@ -78,35 +78,21 @@ export async function createTransaction(
       const newTransaction = new Transaction(updateAccount);
       await newTransaction.save();
 
-      res.status(200).json({ success: true, details: newTransaction });
+      return res.status(200).json({ success: true, details: newTransaction });
     } else {
-      res.status(400).json({ success: false, msg: 'Insufficient amount' });
+      return res
+        .status(400)
+        .json({ success: false, msg: 'Insufficient amount' });
     }
   } catch (err: any) {
-    res.status(500).json(err.message);
+    return res.status(500).json(err.message);
   }
 }
-
-// export async function getAllTransactions(
-//   req: Request,
-//   res: Response,
-// ): Promise<any> {
-//   try {
-
-//     const transaction = await Transaction.find();
-//     if (transaction.length === 0) {
-//       return res.send({ msg: 'No transaction found' });
-//     }
-//     res.send({ Details: transaction });
-//   } catch (err: any) {
-//     res.send({ Error: err.message });
-//   }
-// }
 
 export async function getAllTransactions(
   req: CustomRequest,
   res: Response,
-): Promise<any> {
+): Promise<Response> {
   try {
     console.log(req.user);
     const transaction = await Transaction.find({ userId: req.user });
@@ -115,18 +101,16 @@ export async function getAllTransactions(
         .status(404)
         .json({ msg: `No transaction exist with this userId ${req.user}` });
     }
-
-    console.log('user', transaction);
-    res.status(200).json({ msg: transaction });
+    return res.status(200).json({ msg: transaction });
   } catch (err: any) {
-    res.status(500).json({ Error: err.message });
+    return res.status(500).json({ Error: err.message });
   }
 }
 
 export async function getTransactionByUser(
   req: CustomRequest,
   res: Response,
-): Promise<any> {
+): Promise<Response> {
   try {
     console.log(req.user);
     const transaction = await Transaction.findOne({ userId: req.user });
@@ -135,27 +119,24 @@ export async function getTransactionByUser(
         .status(404)
         .json({ msg: `No transaction exist with this userId ${req.user}` });
     }
-
-    console.log('user', transaction);
-    res.status(200).json({ msg: transaction });
+    return res.status(200).json({ msg: transaction });
   } catch (err: any) {
-    res.status(500).json({ Error: err.message });
+    return res.status(500).json({ Error: err.message });
   }
 }
 
 export async function getRateController(
   req: Request,
   res: Response,
-): Promise<any> {
+): Promise<Response> {
   // 'https://v6.exchangerate-api.com/v6/e040af17b11ab1c76fa9fdf9/latest/USD',
   try {
     const { base_code, target_code } = req.body;
     const { data } = await axios.get(
       `https://v6.exchangerate-api.com/v6/${process.env.EXCHANGE_API_KEY}/pair/${base_code}/${target_code}`,
     );
-    console.log(data);
-    res.send({ Data: data });
+    return res.send({ Data: data });
   } catch (err) {
-    res.send({ Errors: err });
+    return res.json({ Errors: err });
   }
 }
