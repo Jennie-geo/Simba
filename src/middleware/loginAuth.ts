@@ -69,7 +69,6 @@ export function authlogin(
         iat: number;
         exp: number;
       };
-      console.log('>>> userId', userId);
       const user = await User.findById(userId);
       if (!user) {
         return res.send({ login: `No User exists with this ${userId}` });
@@ -79,38 +78,3 @@ export function authlogin(
     }
   });
 }
-
-// export  function getRandomNumber(str: any): Promise<string> {
-//   return Math.random().toFixed(str).split('.')[1];
-
-// }
-// console.log(getRandomNumber(10));
-
-//admin authorization
-// export function adminAuth(req: Users, res: Response, next: NextFunction): any {
-//   const token = req.headers['authorization'];
-//   if (!token) {
-//     return res.status(403).send('login please');
-//   }
-//   const admintokenBody = token.slice(7);
-//   jwt.verify(
-//     admintokenBody,
-//     'SECRET',
-//     async (err, decoded: customJwtPayLoad | undefined) => {
-//       if (err) {
-//         return res.status(403).send({ Error: 'Access denied' });
-//       } else {
-//         const { userId } = decoded!;
-//         const user = await User.findById(userId);
-//         if (!user) {
-//           return res.send({ msg: 'No user exists with this id' });
-//         }
-//         if (user.role === 'admin') {
-//           next();
-//         } else {
-//           return res.status(401).send({ msg: 'You are unauthorized' });
-//         }
-//       }
-//     },
-//   );
-// }

@@ -66,7 +66,7 @@ export async function createTransaction(
         amount,
         target_currency,
         source_currency,
-        // userId: user,
+        userId: user._id,
         exchange_rate: conversion_rate,
       };
       sender.balance[source_currency] = newSenderBalUSD;
@@ -87,30 +87,56 @@ export async function createTransaction(
   }
 }
 
-export async function getAllTransactions(
-  req: Request,
-  res: Response,
-): Promise<any> {
-  try {
-    const transaction = await Transaction.find();
-    if (transaction.length === 0) {
-      return res.send({ msg: 'No transaction found' });
-    }
-    res.send({ Details: transaction });
-  } catch (err: any) {
-    res.send({ Error: err.message });
-  }
-}
+// export async function getAllTransactions(
+//   req: Request,
+//   res: Response,
+// ): Promise<any> {
+//   try {
 
-export async function getSingleTransactionByUser(
+//     const transaction = await Transaction.find();
+//     if (transaction.length === 0) {
+//       return res.send({ msg: 'No transaction found' });
+//     }
+//     res.send({ Details: transaction });
+//   } catch (err: any) {
+//     res.send({ Error: err.message });
+//   }
+// }
+
+export async function getAllTransactions(
   req: CustomRequest,
   res: Response,
 ): Promise<any> {
   try {
+    console.log(req.user);
     const transaction = await Transaction.find({ userId: req.user });
     if (!transaction) {
-      return res.status(404).json({ msg: 'No user with the id exists' });
+      return res
+        .status(404)
+        .json({ msg: `No transaction exist with this userId ${req.user}` });
     }
+
+    console.log('user', transaction);
+    res.status(200).json({ msg: transaction });
+  } catch (err: any) {
+    res.status(500).json({ Error: err.message });
+  }
+}
+
+export async function getTransactionByUser(
+  req: CustomRequest,
+  res: Response,
+): Promise<any> {
+  try {
+    console.log(req.user);
+    const transaction = await Transaction.findOne({ userId: req.user });
+    if (!transaction) {
+      return res
+        .status(404)
+        .json({ msg: `No transaction exist with this userId ${req.user}` });
+    }
+
+    console.log('user', transaction);
     res.status(200).json({ msg: transaction });
   } catch (err: any) {
     res.status(500).json({ Error: err.message });
