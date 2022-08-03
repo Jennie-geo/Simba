@@ -1,26 +1,27 @@
-#!/usr/bin/env node
-require('dotenv').config();
-/**
- * Module dependencies.
- */
+import app from './app';
+import debug from 'debug';
 
-//var app = require('../dist/app').default;
-var debug = require('debug')('setnodetypescript:server');
-var http = require('http');
-const mongoose = require('mongoose');
-
+import http from 'http';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+dotenv.config();
 /**
  * Get port from environment and store in Express.
  */
+debug('setnodetypescript:server');
 
-var port = normalizePort(process.env.PORT || '3800');
+const port = normalizePort(process.env.PORT || '8080');
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+const server = http.createServer(app);
+
+/**
+ * Creating the communication channel.
+ */
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -33,18 +34,17 @@ server.on('listening', onListening);
 /**
  * Normalize a port into a number, string, or false.
  */
-mongoose.connect(process.env.DATABASE_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
+mongoose
+  .connect(process.env.DATABASE_URL || '')
+  .then(() => {
+    console.log('Jenny connected to db');
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
-}).then(() => {
-  console.log('connected to db')
-}).catch((err) => {
-  console.log(err)
-});
-
-function normalizePort(val) {
-  var port = parseInt(val, 10);
+function normalizePort(val: string) {
+  const port = parseInt(val, 10);
 
   if (isNaN(port)) {
     // named pipe
@@ -58,17 +58,17 @@ function normalizePort(val) {
 
   return false;
 }
-
+console.log('hello me');
 /**
  * Event listener for HTTP server "error" event.
  */
 
-function onError(error) {
+function onError(error: any) {
   if (error.syscall !== 'listen') {
     throw error;
   }
 
-  var bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
+  const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
@@ -90,7 +90,7 @@ function onError(error) {
  */
 
 function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+  const addr = server.address();
+  const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr?.port;
+  console.log('Listening on ' + bind);
 }
