@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node ./dist/server.js",
     "migrate": "node-pg-migrate",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "build": "npx tsc"
   },
   "dependencies": {
     "@types/cors": "~2.8.12",
