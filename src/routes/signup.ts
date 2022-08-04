@@ -10,7 +10,7 @@ import {
 } from '../controller/user';
 import { authlogin, isLoggedIn } from '../middleware/loginAuth';
 
-router.post('/welcome', welcomePage);
+router.get('/', welcomePage);
 router.post('/api/v1/user/user_signup', createUser);
 router.post('/api/v1/user/login', loginUser);
 router.get('/api/v1/user/getUser', isLoggedIn, getAllUser);
