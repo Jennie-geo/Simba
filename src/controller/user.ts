@@ -5,6 +5,22 @@ import { userSchema } from '../middleware/validation';
 import jwt from 'jsonwebtoken';
 import { CustomRequest } from '../middleware/loginAuth';
 
+export async function welcomePage(
+  req: Request,
+  res: Response,
+): Promise<Response> {
+  try {
+    return res.status(200).json({
+      success: true,
+      successMessage: 'Welcome to the landing page',
+      data: [],
+    });
+  } catch (error: any) {
+    return res
+      .status(500)
+      .json({ success: false, errorMessage: error.message, data: [] });
+  }
+}
 export async function createUser(
   req: express.Request,
   res: express.Response,

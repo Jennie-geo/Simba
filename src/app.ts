@@ -55,7 +55,7 @@ app.use(function (
 
   // render the error page
   res.status(err.status || 500);
-  res.json({ error: res.locals.error });
+  res.json({ Error: 'Page Not Found' });
 });
 
 export default app;
